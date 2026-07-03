@@ -3,7 +3,7 @@
 A self-hosted [Docker Registry](https://distribution.github.io/distribution/) (`registry:2`) fronted by [Caddy](https://caddyserver.com/), packaged as **one container** so it drops straight onto RunFlare.
 
 ```
-Public traffic ──▶ Caddy :8080 ──▶ Registry 127.0.0.1:5000 ──▶ Disk /var/lib/registry
+Public traffic ──▶ Caddy :8000 ──▶ Registry 127.0.0.1:5000 ──▶ Disk /var/lib/registry
                      │
                      ├─ access log (who pulled/pushed, from which IP)
                      ├─ IP allowlist   (ALLOWED_IPS)
@@ -45,8 +45,8 @@ The registry itself can't restrict callers or log who connects, and **RunFlare h
 docker compose up -d --build
 
 docker pull alpine
-docker tag alpine localhost:8080/alpine:test
-docker push localhost:8080/alpine:test
+docker tag alpine localhost:8000/alpine:test
+docker push localhost:8000/alpine:test
 
 docker compose logs -f registry     # watch the JSON access log
 ```
@@ -59,7 +59,7 @@ Locally `ALLOWED_IPS` is `0.0.0.0/0 ::/0` (allow all) so it won't lock you out o
 
 1. **Push this folder to a Git repo** (GitHub/GitLab) — RunFlare deploys from Git.
 2. **New Service → Docker / Dockerfile**, point it at your repo. RunFlare builds the `Dockerfile`.
-3. **Port:** expose **`8080`** ← note: Caddy's port now, *not* 5000.
+3. **Port:** expose **`8000`** ← note: Caddy's port now, *not* 5000.
 
 4. ### 📁 Folders to create in RunFlare (Disks)
 

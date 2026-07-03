@@ -19,7 +19,7 @@
 	}
 }
 
-:8080 {
+:8000 {
 	# ---- Access log: JSON to stdout (shows up in RunFlare's log viewer) ----
 	# Logs method, path, status, AND the real client IP — including the 403s
 	# from blocked IPs/hosts, so you have an audit trail of who tried what.

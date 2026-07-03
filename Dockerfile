@@ -1,6 +1,6 @@
 # Open Docker Registry + Caddy front door, in ONE image, for RunFlare.
 #
-#   Public traffic ->  Caddy (:8080)  ->  Registry (127.0.0.1:5000)
+#   Public traffic ->  Caddy (:8000)  ->  Registry (127.0.0.1:5000)
 #
 # Caddy adds: access logging, IP allowlist, and domain allowlist.
 # Both processes are supervised so the container stays healthy.
@@ -19,8 +19,8 @@ COPY config/config.yml /etc/docker/registry/config.yml
 COPY Caddyfile         /etc/caddy/Caddyfile
 COPY supervisord.conf  /etc/supervisord.conf
 
-# Caddy is the public port on RunFlare (NOT 5000 anymore)
-EXPOSE 8080
+# Caddy is the public port on RunFlare (matches the service's exposed port)
+EXPOSE 8000
 
 # Persisted data. Attach a RunFlare Disk to this exact mount path.
 VOLUME ["/var/lib/registry"]

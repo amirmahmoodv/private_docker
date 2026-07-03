@@ -1,11 +1,11 @@
-# Local test (mirrors what RunFlare runs): Caddy on :8080 -> registry inside.
+# Local test (mirrors what RunFlare runs): Caddy on :8000 -> registry inside.
 #   docker compose up -d --build
-#   docker tag alpine localhost:8080/alpine && docker push localhost:8080/alpine
+#   docker tag alpine localhost:8000/alpine && docker push localhost:8000/alpine
 services:
   registry:
     build: .            # uses ./Dockerfile (registry + caddy in one image)
     ports:
-      - "8080:8080"     # public port is Caddy's 8080
+      - "8000:8000"     # public port is Caddy's 8000
     environment:
       # Fixed secret so uploads survive restarts (change this value!)
       REGISTRY_HTTP_SECRET: "change-me-to-a-long-random-string"
