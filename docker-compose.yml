@@ -1,0 +1,21 @@
+# Local test (mirrors what RunFlare runs): Caddy on :8080 -> registry inside.
+#   docker compose up -d --build
+#   docker tag alpine localhost:8080/alpine && docker push localhost:8080/alpine
+services:
+  registry:
+    build: .            # uses ./Dockerfile (registry + caddy in one image)
+    ports:
+      - "8080:8080"     # public port is Caddy's 8080
+    environment:
+      # Fixed secret so uploads survive restarts (change this value!)
+      REGISTRY_HTTP_SECRET: "change-me-to-a-long-random-string"
+      # Which hostnames the registry answers on:
+      ALLOWED_HOSTS: "localhost"
+      # Which client IPs may connect. Allow-all locally; TIGHTEN in RunFlare.
+      ALLOWED_IPS: "0.0.0.0/0 ::/0"
+    volumes:
+      - registry-data:/var/lib/registry   # <- the folder RunFlare persists as a Disk
+    restart: unless-stopped
+
+volumes:
+  registry-data:

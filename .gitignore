@@ -1,0 +1,8 @@
+# Local registry data
+data/
+*.env
+.env
+
+# OS junk
+.DS_Store
+Thumbs.db

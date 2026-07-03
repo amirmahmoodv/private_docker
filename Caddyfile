@@ -1,0 +1,43 @@
+# Caddy = the public front door for the registry.
+# It runs in the SAME container as the registry and gives you:
+#   1) Access logs  — every pull/push/denied attempt, with the client IP.
+#   2) IP allowlist  — only ALLOWED_IPS may connect (everyone else = 403).
+#   3) Domain allowlist — the registry only answers on ALLOWED_HOSTS.
+#
+# Configure the two lists with Environment Variables in RunFlare — no rebuild:
+#   ALLOWED_HOSTS = "myreg.apps.runflare.com registry.example.com"
+#   ALLOWED_IPS   = "203.0.113.5 198.51.100.0/24 2001:db8::/32"
+# To allow every IP: ALLOWED_IPS = "0.0.0.0/0 ::/0"
+
+{
+	admin off
+	servers {
+		# RunFlare's ingress sits in front of us, so the real client IP arrives
+		# in X-Forwarded-For. Trust the ingress (private network) so `client_ip`
+		# resolves to the REAL caller, not RunFlare's internal proxy address.
+		trusted_proxies static private_ranges
+	}
+}
+
+:8080 {
+	# ---- Access log: JSON to stdout (shows up in RunFlare's log viewer) ----
+	# Logs method, path, status, AND the real client IP — including the 403s
+	# from blocked IPs/hosts, so you have an audit trail of who tried what.
+	log {
+		output stdout
+		format json
+	}
+
+	# ---- Domain allowlist ----
+	# Reject any request whose Host isn't in ALLOWED_HOSTS.
+	@badhost not host {$ALLOWED_HOSTS:localhost}
+	respond @badhost "Forbidden: host not allowed" 403
+
+	# ---- IP allowlist ----
+	# Reject any client IP not in ALLOWED_IPS (default: allow all).
+	@blocked not client_ip {$ALLOWED_IPS:0.0.0.0/0 ::/0}
+	respond @blocked "Forbidden: IP not allowed" 403
+
+	# ---- Everything allowed goes to the registry (same container) ----
+	reverse_proxy 127.0.0.1:5000
+}

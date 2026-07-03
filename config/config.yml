@@ -1,0 +1,45 @@
+version: 0.1
+
+log:
+  level: info
+  formatter: text
+  fields:
+    service: registry
+
+storage:
+  filesystem:
+    # ⬇️  THIS is the folder that must survive restarts.
+    # On RunFlare you attach a Disk mounted at exactly this path.
+    rootdirectory: /var/lib/registry
+  delete:
+    enabled: true
+  cache:
+    blobdescriptor: inmemory
+  maintenance:
+    uploadpurging:
+      enabled: true
+      age: 168h
+      interval: 24h
+      dryrun: false
+
+http:
+  # Registry stays INTERNAL — only Caddy (same container) talks to it on
+  # localhost. The public port is Caddy's :8080.
+  addr: 127.0.0.1:5000
+  headers:
+    X-Content-Type-Options: [nosniff]
+
+health:
+  storagedriver:
+    enabled: true
+    interval: 10s
+    threshold: 3
+
+# FULLY OPEN at the registry layer. IP/domain allowlisting and access
+# logging are handled by Caddy in front (see ./Caddyfile).
+# To require real logins (so the log shows usernames), generate an htpasswd
+# file, COPY it in the Dockerfile, and uncomment:
+# auth:
+#   htpasswd:
+#     realm: Registry Realm
+#     path: /auth/htpasswd

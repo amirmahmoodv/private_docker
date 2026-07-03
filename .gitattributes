@@ -1,0 +1,3 @@
+# Force LF everywhere so config/scripts stay valid inside the Linux image
+# (CRLF can break supervisord.conf, Caddyfile, entrypoints, etc.)
+* text=auto eol=lf
